@@ -1,0 +1,13 @@
+# Project exclude paths
+/target/
+\.idea/
+
+target/
+
+test-output/
+
+*.iml
+
+src/test/resources/FailedScreenShots/
+
+.DS_Store

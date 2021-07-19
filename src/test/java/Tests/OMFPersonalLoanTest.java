@@ -1,0 +1,32 @@
+package Tests;
+
+
+import Configuration.DriverUtil;
+import Pages.OMFHomePage;
+import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.Test;
+
+
+public class OMFPersonalLoanTest extends DriverUtil {
+
+    private OMFHomePage omfHomePage;
+
+    @BeforeMethod
+    private void setupPageObjects() {
+        omfHomePage = new OMFHomePage();
+
+    }
+
+    @Test
+    public void navigateToOMFHomePage() {
+        omfHomePage.waitForHomePage();
+    }
+
+    @Test
+    public void navigateToPersonalLoanPage() {
+        omfHomePage.waitForHomePage();
+        omfHomePage.clickOnpersonalLoanLearnMoreButton();
+    }
+
+
+}

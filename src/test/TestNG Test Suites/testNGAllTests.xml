@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE suite SYSTEM "http://testng.org/testng-1.0.dtd">
+
+<!-- File is used to execute all Tests in one test run -->
+<suite name="Old Mutual Finance Personal Loan - All tests">
+
+    <listeners>
+        <listener class-name="Util.ReportListener"/>
+    </listeners>
+
+    <test name="Login Test">
+        <classes>
+            <class name="Tests.OMFPersonalLoanTest"/>
+        </classes>
+    </test>
+
+</suite>
+
