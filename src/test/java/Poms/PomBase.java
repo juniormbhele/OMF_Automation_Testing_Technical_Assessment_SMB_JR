@@ -170,13 +170,13 @@ public class PomBase {
         String url = "";
         switch (environment.toLowerCase()) {
             case "qa":
-                url = propertiesLoader.getProperties("application.url.malaicha.qa");
+                url = propertiesLoader.getProperties("application.url.omf.qa");
                 break;
             case "staging":
-                url = propertiesLoader.getProperties("application.url.malaicha.staging");
+                url = propertiesLoader.getProperties("application.url.omf.staging");
                 break;
             case "local":
-                url = propertiesLoader.getProperties("application.url.malaicha.dev");
+                url = propertiesLoader.getProperties("application.url.omf.dev");
                 break;
             default:
                 Assert.fail(environment + " is not a valid environment");

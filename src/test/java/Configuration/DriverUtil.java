@@ -1,20 +1,21 @@
 package Configuration;
 
 
-
+import io.github.bonigarcia.wdm.managers.ChromeDriverManager;
+import io.github.bonigarcia.wdm.managers.FirefoxDriverManager;
+import io.github.bonigarcia.wdm.managers.InternetExplorerDriverManager;
 import org.openqa.selenium.Dimension;
 import org.openqa.selenium.OutputType;
 import org.openqa.selenium.TakesScreenshot;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.chrome.ChromeOptions;
+import org.openqa.selenium.firefox.FirefoxDriver;
+import org.openqa.selenium.ie.InternetExplorerDriver;
 import org.openqa.selenium.io.FileHandler;
-import org.openqa.selenium.remote.RemoteWebDriver;
 import org.testng.Assert;
 import org.testng.ITestResult;
-import org.testng.annotations.AfterMethod;
-import org.testng.annotations.BeforeMethod;
-import org.testng.annotations.BeforeTest;
+import org.testng.annotations.*;
 
 import java.io.File;
 import java.io.IOException;
@@ -23,12 +24,16 @@ import java.util.Date;
 
 import static Util.ReporterOutput.ReporterLog;
 
+
 public class DriverUtil {
 
     public static WebDriver WEB_DRIVER;
     private final PropertiesLoader propertiesLoader = new PropertiesLoader();
     private int screenWidth = 1920;
     private int screenHeight = 1080;
+    private static final String FIREFOX = "firefox";
+    private static final String IE = "ie";
+    private static final String DEFAULT = "chrome";
 
     public DriverUtil() {
         propertiesLoader.loadProperties();
@@ -43,7 +48,7 @@ public class DriverUtil {
                     ReporterLog("Setting up driver for Linux");
                     break;
                 case "Mac OS X":
-                    System.setProperty("webdriver.chrome.driver", "chromedriver-mac");
+                    System.setProperty("webdriver.chrome.driver", "chromedriver");
                     ReporterLog("Setting up driver for MAC");
                     break;
                 default:
@@ -74,7 +79,7 @@ public class DriverUtil {
         return url;
     }
 
-    @BeforeMethod
+    @BeforeClass
     public void setupDriver() {
         getDriver();
     }
@@ -91,23 +96,35 @@ public class DriverUtil {
         }
     }
 
-    private void getDriver() {
-        if (propertiesLoader.getProperty("runOnDocker").equals("false")) {
-//            ChromeOptions options = new ChromeOptions();
-//            options.addArguments("--use-fake-ui-for-media-stream=1");
-            WEB_DRIVER = new ChromeDriver();
-            WEB_DRIVER.manage().window().setSize(new Dimension(screenWidth, screenHeight));
-        } else if (propertiesLoader.getProperty("runOnDocker").equals("true")) {
-            setUpDocker();
-        } else {
-            Assert.fail("Please set a value to key: runOnDocker on the application.properties file");
-        }
 
-        //propertiesLoader.setProperty("sessionId", ((RemoteWebDriver) WEB_DRIVER).getSessionId().toString());
-        goToUrl(getBaseUrl());
+    private void getDriver(){
+        // Uses chrome driver by default
+        String browser = propertiesLoader.getProperties("application.test.browser");
+        if (browser == null) {
+            browser = DEFAULT;
+        }
+        if (browser.toLowerCase().equals(FIREFOX)) {
+            FirefoxDriverManager.firefoxdriver().setup();
+            WEB_DRIVER = new FirefoxDriver();
+            goToUrl(getBaseUrl());
+        } else if (browser.toLowerCase().equals(IE)) {
+            InternetExplorerDriverManager.iedriver().setup();
+            WEB_DRIVER = new InternetExplorerDriver();
+            WEB_DRIVER.manage().window().setSize(new Dimension(screenWidth, screenHeight));
+            goToUrl(getBaseUrl());
+
+        } else {
+            ChromeDriverManager.chromedriver().setup();
+            ChromeOptions options = new ChromeOptions();
+            options.addArguments("--start-fullscreen");
+            WEB_DRIVER = new ChromeDriver(options);
+            goToUrl(getBaseUrl());
+
+        }
     }
 
     private void setUpDocker() {
+        //TODO Set up Docker Code
     }
 
     public void goToUrl(String url) {
@@ -122,7 +139,7 @@ public class DriverUtil {
         return this;
     }
 
-    @AfterMethod
+    @AfterClass
     public void tearDownTest() {
         tearDown();
     }
@@ -143,6 +160,8 @@ public class DriverUtil {
 
     }
 
+
+    //TODO Set up screen resolution
     public int getScreenWidth() {
         return screenWidth;
     }

@@ -32,4 +32,5 @@ public class DefaultConfig {
             return value.trim();
         }
     }
+
 }
