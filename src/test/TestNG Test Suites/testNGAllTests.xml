@@ -4,10 +4,6 @@
 <!-- File is used to execute all Tests in one test run -->
 <suite name="Old Mutual Finance Personal Loan - All tests">
 
-    <listeners>
-        <listener class-name="Util.ReportListener"/>
-    </listeners>
-
     <test name="Login Test">
         <classes>
             <class name="Tests.OMFPersonalLoanTest"/>

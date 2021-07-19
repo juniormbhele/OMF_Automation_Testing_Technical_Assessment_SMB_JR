@@ -7,9 +7,6 @@ import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.FindBy;
 import org.openqa.selenium.support.PageFactory;
-import org.openqa.selenium.support.ui.ExpectedConditions;
-import org.openqa.selenium.support.ui.Select;
-import org.openqa.selenium.support.ui.WebDriverWait;
 import org.testng.Assert;
 
 
@@ -37,12 +34,6 @@ public class OMFHomePage extends PomBase {
 
     @FindBy(xpath = "//li[3]/ul/li/ul/li[2]/a/span")
     private WebElement personLoanButton;
-
-    public  void justTest()
-    {
-        ourSolutionsButton.click();
-        personLoanButton.click();
-    }
 
     @FindBy(xpath = "//a[@href='#calculator_container']")
     private WebElement calculatePersonalLoan;
@@ -120,43 +111,61 @@ public class OMFHomePage extends PomBase {
 
 
         public void clickOnCalculatePersonLoanButton() {
-        if (personalLoanPageTitleValidation()) {
-            // Scrolling down the page till the element is found
-            js.executeScript("arguments[0].scrollIntoView();", calculatePersonalLoan);
-            calculatePersonalLoan.click();
+            try {
+                if (personalLoanPageTitleValidation()) {
+                    // Scrolling down the page till the element is found
+                    js.executeScript("arguments[0].scrollIntoView();", calculatePersonalLoan);
+                    calculatePersonalLoan.click();
+
+                }
+                else {
+                    ReporterLog("Personal Loan - Learn More is not displayed");
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
 
         }
-        else {
-            ReporterLog("Personal Loan - Learn More is not displayed");
-        }
-
-    }
 
     public void clickOnBankAndBorrowButton() {
-        if (homePageTitleValidation()) {
-            // Scrolling down the page till the element is found
-            js.executeScript("arguments[0].scrollIntoView();", bankAndBorrowButton);
-            bankAndBorrowButton.click();
+        try {
+            if (homePageTitleValidation()) {
+                // Scrolling down the page till the element is found
+                js.executeScript("arguments[0].scrollIntoView();", bankAndBorrowButton);
+                bankAndBorrowButton.click();
 
-        }
-        else {
-            ReporterLog("Personal Loan - Learn More is not displayed");
+            }
+            else {
+                ReporterLog("Personal Loan - Learn More is not displayed");
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
         }
 
     }
 
     private boolean personalLoanPageTitleValidation() {
-        ReporterLog("Current Page is :" +WEB_DRIVER.getTitle());
-        Assert.assertEquals(WEB_DRIVER.getTitle(), "Personal Loans | Apply Online | Old Mutual");
+        try {
+            ReporterLog("Current Page is :" +WEB_DRIVER.getTitle());
+            Assert.assertEquals(WEB_DRIVER.getTitle(), "Personal Loans | Apply Online | Old Mutual");
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
         return WEB_DRIVER.getTitle().equalsIgnoreCase("Personal Loans | Apply Online | Old Mutual");
+
     }
 
 
     public boolean homePageTitleValidation()
     {
-        ReporterLog("Current Page is :" +WEB_DRIVER.getTitle());
-        Assert.assertEquals(WEB_DRIVER.getTitle(), "Bank and Borrow Solutions | Old Mutual");
+        try {
+            ReporterLog("Current Page is :" +WEB_DRIVER.getTitle());
+            Assert.assertEquals(WEB_DRIVER.getTitle(), "Bank and Borrow Solutions | Old Mutual");
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
         return WEB_DRIVER.getTitle().equalsIgnoreCase("Bank and Borrow Solutions | Old Mutual");
+
     }
 
 }

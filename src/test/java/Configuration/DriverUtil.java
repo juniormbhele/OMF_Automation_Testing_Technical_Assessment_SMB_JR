@@ -4,10 +4,7 @@ package Configuration;
 import io.github.bonigarcia.wdm.managers.ChromeDriverManager;
 import io.github.bonigarcia.wdm.managers.FirefoxDriverManager;
 import io.github.bonigarcia.wdm.managers.InternetExplorerDriverManager;
-import org.openqa.selenium.Dimension;
-import org.openqa.selenium.OutputType;
-import org.openqa.selenium.TakesScreenshot;
-import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.*;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.chrome.ChromeOptions;
 import org.openqa.selenium.firefox.FirefoxDriver;
@@ -36,44 +33,53 @@ public class DriverUtil {
     private static final String DEFAULT = "chrome";
 
     public DriverUtil() {
-        propertiesLoader.loadProperties();
-        if (propertiesLoader.getProperties("runOnDocker").equals("false")) {
-            switch (System.getProperty("os.name")) {
-                case "Windows 10":
-                    System.setProperty("webdriver.chrome.driver", "chromedriver.exe");
-                    ReporterLog("Setting up driver for Windows");
-                    break;
-                case "Linux":
-                    System.setProperty("webdriver.chrome.driver", "chromedriver-linux");
-                    ReporterLog("Setting up driver for Linux");
-                    break;
-                case "Mac OS X":
-                    System.setProperty("webdriver.chrome.driver", "chromedriver");
-                    ReporterLog("Setting up driver for MAC");
-                    break;
-                default:
-                    Assert.fail("Unable to detect current os: " + System.getProperty("os.name"));
+        try {
+            propertiesLoader.loadProperties();
+            if (propertiesLoader.getProperties("runOnDocker").equals("false")) {
+                switch (System.getProperty("os.name")) {
+                    case "Windows 10":
+                        System.setProperty("webdriver.chrome.driver", "chromedriver.exe");
+                        ReporterLog("Setting up driver for Windows");
+                        break;
+                    case "Linux":
+                        System.setProperty("webdriver.chrome.driver", "chromedriver-linux");
+                        ReporterLog("Setting up driver for Linux");
+                        break;
+                    case "Mac OS X":
+                        System.setProperty("webdriver.chrome.driver", "chromedriver");
+                        ReporterLog("Setting up driver for MAC");
+                        break;
+                    default:
+                        Assert.fail("Unable to detect current os: " + System.getProperty("os.name"));
+                }
+            } else {
+                ReporterLog("Running On Docker");
             }
-        } else {
-            ReporterLog("Running On Docker");
+        } catch (Exception e) {
+            e.printStackTrace();
         }
     }
 
     public String getBaseUrl() {
-        String environment = DefaultConfig.getTestEnv();
-        String url = "";
-        switch (environment.toLowerCase()) {
-            case "qa":
-                url = propertiesLoader.getProperties("application.url.omf.qa");
-                break;
-            case "staging":
-                url = propertiesLoader.getProperties("application.url.omf.staging");
-                break;
-            case "dev":
-                url = propertiesLoader.getProperties("application.url.omf.dev");
-                break;
-            default:
-                Assert.fail(environment + " is not a valid environment");
+        String url = null;
+        try {
+            String environment = DefaultConfig.getTestEnv();
+            url = "";
+            switch (environment.toLowerCase()) {
+                case "qa":
+                    url = propertiesLoader.getProperties("application.url.omf.qa");
+                    break;
+                case "staging":
+                    url = propertiesLoader.getProperties("application.url.omf.staging");
+                    break;
+                case "dev":
+                    url = propertiesLoader.getProperties("application.url.omf.dev");
+                    break;
+                default:
+                    Assert.fail(environment + " is not a valid environment");
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
         }
 
         return url;
@@ -87,39 +93,47 @@ public class DriverUtil {
 
     @BeforeTest(alwaysRun = true)
     public void setupGlob() {
-        propertiesLoader.loadProperties();
+        try {
+            propertiesLoader.loadProperties();
 
-        if (DefaultConfig.getTestEnv().equalsIgnoreCase("dev")){
-            propertiesLoader.setProperty("environment", "QA");
-        } else {
-            propertiesLoader.setProperty("environment", DefaultConfig.getTestEnv());
+            if (DefaultConfig.getTestEnv().equalsIgnoreCase("dev")){
+                propertiesLoader.setProperty("environment", "QA");
+            } else {
+                propertiesLoader.setProperty("environment", DefaultConfig.getTestEnv());
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
         }
     }
 
 
     private void getDriver(){
-        // Uses chrome driver by default
-        String browser = propertiesLoader.getProperties("application.test.browser");
-        if (browser == null) {
-            browser = DEFAULT;
-        }
-        if (browser.toLowerCase().equals(FIREFOX)) {
-            FirefoxDriverManager.firefoxdriver().setup();
-            WEB_DRIVER = new FirefoxDriver();
-            goToUrl(getBaseUrl());
-        } else if (browser.toLowerCase().equals(IE)) {
-            InternetExplorerDriverManager.iedriver().setup();
-            WEB_DRIVER = new InternetExplorerDriver();
-            WEB_DRIVER.manage().window().setSize(new Dimension(screenWidth, screenHeight));
-            goToUrl(getBaseUrl());
+        try {
+            // Uses chrome driver by default
+            String browser = propertiesLoader.getProperties("application.test.browser");
+            if (browser == null) {
+                browser = DEFAULT;
+            }
+            if (browser.toLowerCase().equals(FIREFOX)) {
+                FirefoxDriverManager.firefoxdriver().setup();
+                WEB_DRIVER = new FirefoxDriver();
+                goToUrl(getBaseUrl());
+            } else if (browser.toLowerCase().equals(IE)) {
+                InternetExplorerDriverManager.iedriver().setup();
+                WEB_DRIVER = new InternetExplorerDriver();
+                WEB_DRIVER.manage().window().setSize(new Dimension(screenWidth, screenHeight));
+                goToUrl(getBaseUrl());
 
-        } else {
-            ChromeDriverManager.chromedriver().setup();
-            ChromeOptions options = new ChromeOptions();
-            options.addArguments("--start-fullscreen");
-            WEB_DRIVER = new ChromeDriver(options);
-            goToUrl(getBaseUrl());
+            } else {
+                ChromeDriverManager.chromedriver().setup();
+                ChromeOptions options = new ChromeOptions();
+                options.addArguments("--start-fullscreen");
+                WEB_DRIVER = new ChromeDriver(options);
+                goToUrl(getBaseUrl());
 
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
         }
     }
 
@@ -146,16 +160,22 @@ public class DriverUtil {
 
     @AfterMethod
     public void captureScreenShot(ITestResult testResult) throws IOException {
-        String location = System.getProperty("user.dir");
+        try {
+            String location = System.getProperty("user.dir");
 
-        if (testResult.getStatus() == ITestResult.FAILURE) {
-            File scrFile = ((TakesScreenshot) WEB_DRIVER).getScreenshotAs(OutputType.FILE);
+            if (testResult.getStatus() == ITestResult.FAILURE) {
+                File scrFile = ((TakesScreenshot) WEB_DRIVER).getScreenshotAs(OutputType.FILE);
 
-            Date date = new Date();
-            long time = date.getTime();
-            Timestamp timestamp = new Timestamp(time);
+                Date date = new Date();
+                long time = date.getTime();
+                Timestamp timestamp = new Timestamp(time);
 
-            FileHandler.copy(scrFile, new File(location + "/src/test/resources/FailedScreenShots/" + testResult.getName() + "-" + timestamp + ".jpg"));
+                FileHandler.copy(scrFile, new File(location + "/src/test/resources/FailedScreenShots/" + testResult.getName() + "-" + timestamp + ".jpg"));
+            }
+        } catch (WebDriverException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
         }
 
     }
